@@ -1,0 +1,25 @@
+databases:
+  - name: shopify-api-db
+    plan: free
+    databaseName: shopify_api_db
+    user: shopify_api_db_user
+
+services:
+  - type: web
+    plan: free
+    region: singapore
+    name: shopifyBackend
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "python -m gunicorn shopify.asgi:application -k uvicorn.workers.UvicornWorker"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: shopify-api-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DEBUG
+        value: False
